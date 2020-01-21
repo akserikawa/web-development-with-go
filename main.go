@@ -14,16 +14,12 @@ var contactView *views.View
 
 func Home(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := homeView.Template.ExecuteTemplate(w, homeView.Layout, nil); err != nil {
-		panic(err)
-	}
+	must(homeView.Render(w, nil))
 }
 
 func Contact(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := contactView.Template.ExecuteTemplate(w, contactView.Layout, nil); err != nil {
-		panic(err)
-	}
+	must(contactView.Render(w, nil))
 }
 
 func Hello(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -34,6 +30,13 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte(" The page you requested could not be found."))
+}
+
+// A helper function that panics on any error
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
