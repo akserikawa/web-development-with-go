@@ -11,6 +11,8 @@ import (
 
 var homeView *views.View
 var contactView *views.View
+var faqView *views.View
+var signupView *views.View
 
 func Home(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "text/html")
@@ -20,6 +22,16 @@ func Home(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func Contact(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "text/html")
 	must(contactView.Render(w, nil))
+}
+
+func Faq(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	w.Header().Set("Content-Type", "text/html")
+	must(faqView.Render(w, nil))
+}
+
+func SignUp(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	w.Header().Set("Content-Type", "text/html")
+	must(signupView.Render(w, nil))
 }
 
 func Hello(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -42,10 +54,14 @@ func must(err error) {
 func main() {
 	homeView = views.NewView("bootstrap", "views/home.gohtml")
 	contactView = views.NewView("bootstrap", "views/contact.gohtml")
+	faqView = views.NewView("bootstrap-4", "views/faq.gohtml")
+	signupView = views.NewView("bootstrap-4", "views/signup.gohtml")
 
 	router := httprouter.New()
 	router.GET("/", Home)
 	router.GET("/contact", Contact)
+	router.GET("/faq", Faq)
+	router.GET("/signup", SignUp)
 	router.GET("/hello/:name", Hello)
 	router.NotFound = http.HandlerFunc(NotFound)
 
