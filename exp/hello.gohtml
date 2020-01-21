@@ -1,0 +1,9 @@
+<h1>Hello, {{.Name}}!</h1>
+<p>You are {{.Age}} years old.</p>
+<ul>
+    {{if .Attributes.country}}
+        <li>Country: {{.Attributes.country}}</li>
+    {{else}}
+        <li>Gender: {{.Attributes.gender}}</li>
+    {{end}}
+</ul>
