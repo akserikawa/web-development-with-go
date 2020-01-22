@@ -58,6 +58,8 @@ func main() {
 	router.GET("/contact", Contact)
 	router.GET("/faq", Faq)
 	router.GET("/signup", usersC.New)
+	router.POST("/signup", usersC.Create)
+
 	router.GET("/hello/:name", Hello)
 	router.NotFound = http.HandlerFunc(NotFound)
 

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -11,14 +12,18 @@ type Users struct {
 	NewView *views.View
 }
 
+func NewUsers() *Users {
+	return &Users{
+		NewView: views.NewView("bootstrap-4", "views/users/new.gohtml"),
+	}
+}
+
 func (u *Users) New(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	if err := u.NewView.Render(w, nil); err != nil {
 		panic(err)
 	}
 }
 
-func NewUsers() *Users {
-	return &Users{
-		NewView: views.NewView("bootstrap-4", "views/users/new.gohtml"),
-	}
+func (u *Users) Create(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	fmt.Fprintln(w, "Temporary response.")
 }
