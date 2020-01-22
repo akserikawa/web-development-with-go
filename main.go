@@ -52,8 +52,8 @@ func must(err error) {
 }
 
 func main() {
-	homeView = views.NewView("bootstrap", "views/home.gohtml")
-	contactView = views.NewView("bootstrap", "views/contact.gohtml")
+	homeView = views.NewView("bootstrap-4", "views/home.gohtml")
+	contactView = views.NewView("bootstrap-4", "views/contact.gohtml")
 	faqView = views.NewView("bootstrap-4", "views/faq.gohtml")
 	signupView = views.NewView("bootstrap-4", "views/signup.gohtml")
 
