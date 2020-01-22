@@ -6,13 +6,13 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
+	"lenslocked.com/controllers"
 	"lenslocked.com/views"
 )
 
 var homeView *views.View
 var contactView *views.View
 var faqView *views.View
-var signupView *views.View
 
 func Home(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "text/html")
@@ -27,11 +27,6 @@ func Contact(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func Faq(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "text/html")
 	must(faqView.Render(w, nil))
-}
-
-func SignUp(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	w.Header().Set("Content-Type", "text/html")
-	must(signupView.Render(w, nil))
 }
 
 func Hello(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -55,13 +50,14 @@ func main() {
 	homeView = views.NewView("bootstrap-4", "views/home.gohtml")
 	contactView = views.NewView("bootstrap-4", "views/contact.gohtml")
 	faqView = views.NewView("bootstrap-4", "views/faq.gohtml")
-	signupView = views.NewView("bootstrap-4", "views/signup.gohtml")
+
+	usersC := controllers.NewUsers()
 
 	router := httprouter.New()
 	router.GET("/", Home)
 	router.GET("/contact", Contact)
 	router.GET("/faq", Faq)
-	router.GET("/signup", SignUp)
+	router.GET("/signup", usersC.New)
 	router.GET("/hello/:name", Hello)
 	router.NotFound = http.HandlerFunc(NotFound)
 
