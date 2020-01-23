@@ -16,3 +16,10 @@ func parseForm(request *http.Request, destination interface{}) error {
 	}
 	return nil
 }
+
+// A helper function that panics on any error
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
+}

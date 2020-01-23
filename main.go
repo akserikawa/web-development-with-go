@@ -14,16 +14,10 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(" The page you requested could not be found."))
 }
 
-// A helper function that panics on any error
-func must(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 func main() {
 	staticC := controllers.NewStatic()
 	usersC := controllers.NewUsers()
+	galleriesC := controllers.NewGalleries()
 
 	router := mux.NewRouter()
 	router.Handle("/", staticC.Home).Methods("GET")
@@ -31,6 +25,7 @@ func main() {
 	router.Handle("/faq", staticC.FAQ).Methods("GET")
 	router.HandleFunc("/signup", usersC.New).Methods("GET")
 	router.HandleFunc("/signup", usersC.Create).Methods("POST")
+	router.HandleFunc("/galleries/new", galleriesC.New).Methods("GET")
 
 	log.Println("Server listening on http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", router))

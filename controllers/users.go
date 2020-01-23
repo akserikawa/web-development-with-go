@@ -23,15 +23,12 @@ func NewUsers() *Users {
 }
 
 func (u *Users) New(w http.ResponseWriter, r *http.Request) {
-	if err := u.NewView.Render(w, nil); err != nil {
-		panic(err)
-	}
+	must(u.NewView.Render(w, nil))
 }
 
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 	form := SignupForm{}
-	if err := parseForm(r, &form); err != nil {
-		panic(err)
-	}
+	must(parseForm(r, &form))
+
 	fmt.Fprintln(w, "Email is", form.Email)
 }
