@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
 	"lenslocked.com/views"
 )
 
@@ -23,13 +22,13 @@ func NewUsers() *Users {
 	}
 }
 
-func (u *Users) New(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 	if err := u.NewView.Render(w, nil); err != nil {
 		panic(err)
 	}
 }
 
-func (u *Users) Create(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 	form := SignupForm{}
 	if err := parseForm(r, &form); err != nil {
 		panic(err)
