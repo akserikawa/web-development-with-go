@@ -12,8 +12,8 @@ type Static struct {
 
 func NewStatic() *Static {
 	return &Static{
-		Home:    views.NewView("bootstrap-4", "views/static/home.gohtml"),
-		Contact: views.NewView("bootstrap-4", "views/static/contact.gohtml"),
-		FAQ:     views.NewView("bootstrap-4", "views/static/faq.gohtml"),
+		Home:    views.NewView("bootstrap-4", "static/home"),
+		Contact: views.NewView("bootstrap-4", "static/contact"),
+		FAQ:     views.NewView("bootstrap-4", "static/faq"),
 	}
 }
