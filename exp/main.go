@@ -28,5 +28,16 @@ func main() {
 	}
 
 	fmt.Println("Successfully connected!")
+
+	var id int
+	row := db.QueryRow(`
+		INSERT INTO users(name, email)
+		VALUES($1, $2) RETURNING id`,
+		"Jon Calhoun", "jon@calhoun.io")
+	err = row.Scan(&id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("User created!")
 	db.Close()
 }
