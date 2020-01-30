@@ -12,7 +12,7 @@ const (
 	port     = 5432
 	user     = "postgres"
 	password = "postgres"
-	dbname   = "lenslocked"
+	dbname   = "lenslocked.com"
 )
 
 func main() {
@@ -30,14 +30,15 @@ func main() {
 	fmt.Println("Successfully connected!")
 
 	var id int
+	var name, email string
 	row := db.QueryRow(`
-		INSERT INTO users(name, email)
-		VALUES($1, $2) RETURNING id`,
-		"Jon Calhoun", "jon@calhoun.io")
-	err = row.Scan(&id)
+	  SELECT id, name, email
+	  FROM users
+	  WHERE id=$1`, 1)
+	err = row.Scan(&id, &name, &email)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("User created!")
+	fmt.Println("ID:", id, "Name:", name, "Email:", email)
 	db.Close()
 }
