@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strings"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -24,6 +21,13 @@ type User struct {
 	Email string `gorm:"not null;unique_index"`
 }
 
+type Order struct {
+	gorm.Model
+	UserID      uint
+	Amount      int
+	Description string
+}
+
 func main() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
@@ -34,24 +38,26 @@ func main() {
 	defer db.Close()
 	db.LogMode(true)
 
-	db.AutoMigrate(&User{})
+	db.AutoMigrate(&User{}, &Order{})
 
-	var users []User
-	db.Find(&users)
+	var u User
+	db.First(&u)
 	if db.Error != nil {
 		panic(db.Error)
 	}
-	fmt.Println("Retrieved", len(users), "users.")
-	fmt.Println(users)
+
+	createOrder(db, u, 100, "Castelli Bib Shorts")
+	createOrder(db, u, 10, "Bus Ticket")
+	createOrder(db, u, 29, "Summer Festival Ticket")
 }
 
-func getInfo() (name, email string) {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("What is your name?")
-	name, _ = reader.ReadString('\n')
-	name = strings.TrimSpace(name)
-	fmt.Println("What is your email?")
-	email, _ = reader.ReadString('\n')
-	email = strings.TrimSpace(email)
-	return name, email
+func createOrder(db *gorm.DB, user User, amount int, desc string) {
+	db.Create(&Order{
+		UserID:      user.ID,
+		Amount:      amount,
+		Description: desc,
+	})
+	if db.Error != nil {
+		panic(db.Error)
+	}
 }
