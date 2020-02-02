@@ -36,14 +36,13 @@ func main() {
 
 	db.AutoMigrate(&User{})
 
-	var u User
-	u.Email = "pepe@pepe.com"
-
-	db.Where(u).First(&u)
+	var users []User
+	db.Find(&users)
 	if db.Error != nil {
 		panic(db.Error)
 	}
-	fmt.Println(u)
+	fmt.Println("Retrieved", len(users), "users.")
+	fmt.Println(users)
 }
 
 func getInfo() (name, email string) {
