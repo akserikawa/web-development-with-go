@@ -15,6 +15,12 @@ const (
 	dbname   = "lenslocked.com"
 )
 
+type User struct {
+	gorm.Model
+	Name  string
+	Email string `gorm:"not null;unique_index"`
+}
+
 func main() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
