@@ -29,4 +29,6 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+
+	db.AutoMigrate(&User{})
 }
