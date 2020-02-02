@@ -36,15 +36,14 @@ func main() {
 
 	db.AutoMigrate(&User{})
 
-	name, email := getInfo()
-	u := &User{
-		Name:  name,
-		Email: email,
+	var u User
+	u.Email = "pepe@pepe.com"
+
+	db.Where(u).First(&u)
+	if db.Error != nil {
+		panic(db.Error)
 	}
-	if err = db.Create(u).Error; err != nil {
-		panic(err)
-	}
-	fmt.Printf("%+v\n", u)
+	fmt.Println(u)
 }
 
 func getInfo() (name, email string) {
