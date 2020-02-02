@@ -17,8 +17,9 @@ const (
 
 type User struct {
 	gorm.Model
-	Name  string
-	Email string `gorm:"not null;unique_index"`
+	Name   string
+	Email  string `gorm:"not null;unique_index"`
+	Orders []Order
 }
 
 type Order struct {
@@ -36,19 +37,18 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
-	db.LogMode(true)
 
+	db.LogMode(true)
 	db.AutoMigrate(&User{}, &Order{})
 
-	var u User
-	db.First(&u)
+	var user User
+	db.Preload("Orders").First(&user)
 	if db.Error != nil {
 		panic(db.Error)
 	}
-
-	createOrder(db, u, 100, "Castelli Bib Shorts")
-	createOrder(db, u, 10, "Bus Ticket")
-	createOrder(db, u, 29, "Summer Festival Ticket")
+	fmt.Println("Email:", user.Email)
+	fmt.Println("Number of orders:", len(user.Orders))
+	fmt.Println("Orders:", user.Orders)
 }
 
 func createOrder(db *gorm.DB, user User, amount int, desc string) {
