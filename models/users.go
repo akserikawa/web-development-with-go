@@ -1,13 +1,19 @@
 package models
 
 import (
+	"errors"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
+var (
+	ErrNotFound = errors.New("models: resource not found")
+)
+
 type User struct {
 	gorm.Model
-	Name string
+	Name  string
 	Email string `gorm:"not null;unique_index"`
 }
 
@@ -17,7 +23,7 @@ type UserService struct {
 
 func NewUserService(connectionInfo string) (*UserService, error) {
 	db, err := gorm.Open("postgres", connectionInfo)
-	if err != {
+	if err != nil {
 		return nil, err
 	}
 	db.LogMode(true)
