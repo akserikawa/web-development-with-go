@@ -1,6 +1,7 @@
 package models
 
 import (
+	_ "database/sql"
 	"errors"
 
 	"github.com/jinzhu/gorm"
@@ -16,7 +17,7 @@ type User struct {
 	gorm.Model
 	Name  string
 	Email string `gorm:"not null;unique_index"`
-	Age   uint8
+	Age   int8
 }
 
 type UserService struct {
@@ -74,7 +75,7 @@ func (us *UserService) ByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
-func (us *UserService) ByAge(age uint8) (*User, error) {
+func (us *UserService) ByAge(age int8) (*User, error) {
 	var user User
 	db := us.db.Where("age = ?", age)
 	err := first(db, &user)
@@ -82,6 +83,16 @@ func (us *UserService) ByAge(age uint8) (*User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (us *UserService) InAgeRange(minAge int8, maxAge int8) ([]User, error) {
+	var users []User
+	db := us.db.Where("age BETWEEN ? AND ?", minAge, maxAge)
+	err := db.Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }
 
 func first(db *gorm.DB, dst interface{}) error {

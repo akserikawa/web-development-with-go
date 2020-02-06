@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/dchest/uniuri"
+
 	"lenslocked.com/models"
 
 	"github.com/jinzhu/gorm"
@@ -28,32 +30,20 @@ func main() {
 	defer db.Close()
 	us.DestructiveReset()
 
-	user := models.User{
-		Name:  "Akira Serikawa",
-		Email: "akserikawa@gmail.com",
-		Age:   25,
-	}
-	if err := us.Create(&user); err != nil {
-		panic(err)
-	}
-
-	user.Name = "Akira Dev"
-	if err := us.Update(&user); err != nil {
-		panic(err)
+	for i := 18; i < 35; i++ {
+		user := models.User{
+			Name:  uniuri.NewLen(4) + " " + uniuri.NewLen(8),
+			Email: uniuri.New() + "@gmail.com",
+			Age:   int8(i),
+		}
+		if err := us.Create(&user); err != nil {
+			panic(err)
+		}
 	}
 
-	foundUser, err := us.ByAge(25)
+	foundUsers, err := us.InAgeRange(22, 32)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(foundUser)
-
-	if err := us.Delete(foundUser.ID); err != nil {
-		panic(err)
-	}
-
-	_, err = us.ByID(foundUser.ID)
-	if err != models.ErrNotFound {
-		panic("user was not deleted")
-	}
+	fmt.Println(foundUsers)
 }
