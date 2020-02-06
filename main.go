@@ -1,20 +1,35 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+
+	"lenslocked.com/models"
 
 	"github.com/gorilla/mux"
 	"lenslocked.com/controllers"
 )
 
-func NotFound(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusNotFound)
-	w.Write([]byte(" The page you requested could not be found."))
-}
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "postgres"
+	password = "postgres"
+	dbname   = "lenslocked.com"
+)
 
 func main() {
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+
+	us, err := models.NewUserService(psqlInfo)
+	if err != nil {
+		panic(err)
+	}
+	defer us.Close()
+	us.AutoMigrate()
+
 	staticC := controllers.NewStatic()
 	usersC := controllers.NewUsers()
 
