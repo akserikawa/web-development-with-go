@@ -31,6 +31,7 @@ func main() {
 	user := models.User{
 		Name:  "Akira Serikawa",
 		Email: "akserikawa@gmail.com",
+		Age:   25,
 	}
 	if err := us.Create(&user); err != nil {
 		panic(err)
@@ -41,7 +42,7 @@ func main() {
 		panic(err)
 	}
 
-	foundUser, err := us.ByEmail("akserikawa@gmail.com")
+	foundUser, err := us.ByAge(25)
 	if err != nil {
 		panic(err)
 	}

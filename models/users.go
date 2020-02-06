@@ -16,7 +16,7 @@ type User struct {
 	gorm.Model
 	Name  string
 	Email string `gorm:"not null;unique_index"`
-	Age   int8
+	Age   uint8
 }
 
 type UserService struct {
@@ -67,6 +67,16 @@ func (us *UserService) ByID(id uint) (*User, error) {
 func (us *UserService) ByEmail(email string) (*User, error) {
 	var user User
 	db := us.db.Where("email = ?", email)
+	err := first(db, &user)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (us *UserService) ByAge(age uint8) (*User, error) {
+	var user User
+	db := us.db.Where("age = ?", age)
 	err := first(db, &user)
 	if err != nil {
 		return nil, err

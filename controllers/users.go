@@ -17,7 +17,7 @@ type SignupForm struct {
 	Name     string `schema:"name"`
 	Email    string `schema:"email"`
 	Password string `schema:"password"`
-	Age      int8   `schema:"age"`
+	Age      uint8  `schema:"age"`
 }
 
 func NewUsers(us *models.UserService) *Users {
