@@ -9,8 +9,9 @@ import (
 )
 
 var (
-	ErrNotFound  = errors.New("models: resource not found")
-	ErrInvalidID = errors.New("models: ID provided was invalid")
+	ErrNotFound        = errors.New("models: resource not found")
+	ErrInvalidID       = errors.New("models: ID provided was invalid")
+	ErrInvalidPassword = errors.New("models: incorrect password provided")
 )
 
 var userPwPepper = "secret-random-string"
@@ -128,4 +129,22 @@ func (us *UserService) AutoMigrate() error {
 		return err
 	}
 	return nil
+}
+
+func (us *UserService) Authenticate(email, password string) (*User, error) {
+	foundUser, err := us.ByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+	err = bcrypt.CompareHashAndPassword(
+		[]byte(foundUser.PasswordHash),
+		[]byte(password+userPwPepper))
+	switch err {
+	case nil:
+		return foundUser, nil
+	case bcrypt.ErrMismatchedHashAndPassword:
+		return nil, ErrInvalidPassword
+	default:
+		return nil, err
+	}
 }

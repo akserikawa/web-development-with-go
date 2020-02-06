@@ -6,7 +6,7 @@
         <h3 class="card-title">Welcome back!</h3>
       </div>
       <div class="card-body">
-        <p class="card-text">{{template "signupForm"}}</p>
+        <p class="card-text">{{template "loginForm"}}</p>
       </div>
     </div>
   </div>
@@ -15,10 +15,6 @@
 
 {{define "loginForm"}}
 <form action="/login" method="POST">
-  <div class="form-group">
-    <label for="name">Name</label>
-    <input type="text" class="form-control" id="name" name="name">
-  </div>
   <div class="form-group">
     <label for="email">Email address</label>
     <input type="email" class="form-control" id="email" name="email">
