@@ -23,22 +23,22 @@ func main() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 
-	us, err := models.NewUserService(psqlInfo)
+	userService, err := models.NewUserService(psqlInfo)
 	if err != nil {
 		panic(err)
 	}
-	defer us.Close()
-	us.AutoMigrate()
+	defer userService.Close()
+	userService.AutoMigrate()
 
-	staticC := controllers.NewStatic()
-	usersC := controllers.NewUsers()
+	staticController := controllers.NewStatic()
+	usersController := controllers.NewUsers(userService)
 
 	router := mux.NewRouter()
-	router.Handle("/", staticC.Home).Methods("GET")
-	router.Handle("/contact", staticC.Contact).Methods("GET")
-	router.Handle("/faq", staticC.FAQ).Methods("GET")
-	router.HandleFunc("/signup", usersC.New).Methods("GET")
-	router.HandleFunc("/signup", usersC.Create).Methods("POST")
+	router.Handle("/", staticController.Home).Methods("GET")
+	router.Handle("/contact", staticController.Contact).Methods("GET")
+	router.Handle("/faq", staticController.FAQ).Methods("GET")
+	router.HandleFunc("/signup", usersController.New).Methods("GET")
+	router.HandleFunc("/signup", usersController.Create).Methods("POST")
 
 	log.Println("Server listening on http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", router))
