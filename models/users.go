@@ -81,12 +81,12 @@ func first(db *gorm.DB, dst interface{}) error {
 	return err
 }
 
-func (us *UserService) DestructiveReset() {
+func (us *UserService) DestructiveReset() error {
 	err := us.db.DropTableIfExists(&User{}).Error
 	if err != nil {
 		return err
 	}
-	return us.AutoMigrate(&User{})
+	return us.AutoMigrate()
 }
 
 func (us *UserService) AutoMigrate() error {
