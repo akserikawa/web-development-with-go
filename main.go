@@ -28,7 +28,7 @@ func main() {
 		panic(err)
 	}
 	defer userService.Close()
-	userService.AutoMigrate()
+	userService.DestructiveReset()
 
 	staticController := controllers.NewStatic()
 	usersController := controllers.NewUsers(userService)
