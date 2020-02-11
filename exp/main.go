@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"lenslocked.com/rand"
+	"lenslocked.com/hash"
 )
 
 const (
@@ -16,6 +16,7 @@ const (
 )
 
 func main() {
-	fmt.Println(rand.String(10))
-	fmt.Println(rand.RememberToken())
+	hmac := hash.NewHMAC("my-secret-key")
+
+	fmt.Println(hmac.Hash("this is my string to hash"))
 }
