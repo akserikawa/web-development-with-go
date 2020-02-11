@@ -41,6 +41,7 @@ func main() {
 	router.HandleFunc("/signup", usersController.Create).Methods("POST")
 	router.Handle("/login", usersController.LoginView).Methods("GET")
 	router.HandleFunc("/login", usersController.Login).Methods("POST")
+	router.HandleFunc("/cookietest", usersController.CookieTest).Methods("GET")
 
 	log.Println("Server listening on http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", router))
