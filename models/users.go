@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 
+	"lenslocked.com/hash"
 	"lenslocked.com/rand"
 
 	"github.com/jinzhu/gorm"
@@ -18,6 +19,8 @@ var (
 
 var userPwPepper = "secret-random-string"
 
+const hmacSecretKey = "secret-hmac-key"
+
 type User struct {
 	gorm.Model
 	Name         string
@@ -30,7 +33,8 @@ type User struct {
 }
 
 type UserService struct {
-	db *gorm.DB
+	db   *gorm.DB
+	hmac hash.HMAC
 }
 
 func NewUserService(connectionInfo string) (*UserService, error) {
@@ -39,8 +43,10 @@ func NewUserService(connectionInfo string) (*UserService, error) {
 		return nil, err
 	}
 	db.LogMode(true)
+	hmac := hash.NewHMAC(hmacSecretKey)
 	return &UserService{
-		db: db,
+		db:   db,
+		hmac: hmac,
 	}, nil
 }
 
