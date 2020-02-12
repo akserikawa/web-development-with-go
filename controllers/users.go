@@ -82,7 +82,14 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/cookietest", http.StatusFound)
+
+	refererCookie, err := r.Cookie("referer")
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+	url := refererCookie.Value
+	http.Redirect(w, r, url, http.StatusFound)
 }
 
 // signIn is used to sign the given user in via cookies
@@ -109,12 +116,22 @@ func (u *Users) signIn(w http.ResponseWriter, user *models.User) error {
 
 func (u *Users) CookieTest(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("remember_token")
+
+	refererCookie := http.Cookie{
+		Name:     "referer",
+		Value:    r.URL.EscapedPath(),
+		HttpOnly: true,
+	}
+
 	if err != nil {
+		http.SetCookie(w, &refererCookie)
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
+
 	user, err := u.us.ByRemember(cookie.Value)
 	if err != nil {
+		http.SetCookie(w, &refererCookie)
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
