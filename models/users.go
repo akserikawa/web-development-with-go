@@ -14,12 +14,12 @@ import (
 )
 
 var (
-	ErrNotFound        = errors.New("models: resource not found")
-	ErrInvalidID       = errors.New("models: ID provided was invalid")
-	ErrInvalidPassword = errors.New("models: incorrect password provided")
-	ErrEmailRequired   = errors.New("models: email address is required")
-	ErrEmailInvalid    = errors.New("models: email address is not valid")
-	ErrEmailTaken      = errors.New("models: email address is already taken")
+	ErrNotFound          = errors.New("models: resource not found")
+	ErrIDInvalid         = errors.New("models: ID provided was invalid")
+	ErrPasswordIncorrect = errors.New("models: incorrect password provided")
+	ErrEmailRequired     = errors.New("models: email address is required")
+	ErrEmailInvalid      = errors.New("models: email address is not valid")
+	ErrEmailTaken        = errors.New("models: email address is already taken")
 )
 
 var userPwPepper = "secret-random-string"
@@ -53,7 +53,7 @@ type UserService interface {
 	// password are correct. If they are correct, the user
 	// corresponding to that email will be returned. Otherwise
 	// You will receive either:
-	// ErrNotFound, ErrInvalidPassword, or another error if
+	// ErrNotFound, ErrPasswordIncorrect, or another error if
 	// something goes wrong.
 	Authenticate(email, password string) (*User, error)
 	UserDB
@@ -204,7 +204,7 @@ func (us *userService) Authenticate(email, password string) (*User, error) {
 	case nil:
 		return foundUser, nil
 	case bcrypt.ErrMismatchedHashAndPassword:
-		return nil, ErrInvalidPassword
+		return nil, ErrPasswordIncorrect
 	default:
 		return nil, err
 	}
@@ -305,7 +305,7 @@ func (uv *userValidator) setRememberIfUnset(user *User) error {
 func (uv *userValidator) idGreaterThan(n uint) userValFn {
 	return userValFn(func(user *User) error {
 		if user.ID <= n {
-			return ErrInvalidID
+			return ErrIDInvalid
 		}
 		return nil
 	})
