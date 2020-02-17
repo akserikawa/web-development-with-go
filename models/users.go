@@ -22,6 +22,7 @@ var userPwPepper = "secret-random-string"
 const hmacSecretKey = "secret-hmac-key"
 
 var _ UserDB = &userGorm{}
+var _ UserService = &userService{}
 
 // UserDB is used to interact with the users database
 type UserDB interface {
@@ -40,6 +41,23 @@ type UserDB interface {
 	DestructiveReset() error
 }
 
+// UserService is a set of methods used to manipulate and
+// work with the user model
+type UserService interface {
+	// Authenticate will verify the provided email address and
+	// password are correct. If they are correct, the user
+	// corresponding to that email will be returned. Otherwise
+	// You will receive either:
+	// ErrNotFound, ErrInvalidPassword, or another error if
+	// something goes wrong.
+	Authenticate(email, password string) (*User, error)
+	UserDB
+}
+
+type userService struct {
+	UserDB
+}
+
 type User struct {
 	gorm.Model
 	Name         string
@@ -49,10 +67,6 @@ type User struct {
 	PasswordHash string `gorm:"not null"`
 	Remember     string `gorm:"-"`
 	RememberHash string `gorm:"not null;unique_index"`
-}
-
-type UserService struct {
-	UserDB
 }
 
 // userValidator is our validation layer that validates
@@ -69,12 +83,12 @@ type userGorm struct {
 	hmac hash.HMAC
 }
 
-func NewUserService(connectionInfo string) (*UserService, error) {
+func NewUserService(connectionInfo string) (UserService, error) {
 	ug, err := newUserGorm(connectionInfo)
 	if err != nil {
 		return nil, err
 	}
-	return &UserService{
+	return &userService{
 		UserDB: userValidator{
 			UserDB: ug,
 		},
@@ -188,7 +202,7 @@ func (ug *userGorm) AutoMigrate() error {
 	return nil
 }
 
-func (us *UserService) Authenticate(email, password string) (*User, error) {
+func (us *userService) Authenticate(email, password string) (*User, error) {
 	foundUser, err := us.ByEmail(email)
 	if err != nil {
 		return nil, err
