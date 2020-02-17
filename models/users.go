@@ -19,6 +19,7 @@ var (
 	ErrInvalidPassword = errors.New("models: incorrect password provided")
 	ErrEmailRequired   = errors.New("models: email address is required")
 	ErrEmailInvalid    = errors.New("models: email address is not valid")
+	ErrEmailTaken      = errors.New("models: email address is already taken")
 )
 
 var userPwPepper = "secret-random-string"
@@ -226,7 +227,8 @@ func (uv *userValidator) Create(user *User) error {
 		uv.hmacRemember,
 		uv.normalizeEmail,
 		uv.requireEmail,
-		uv.emailFormat)
+		uv.emailFormat,
+		uv.emailIsAvail)
 	if err != nil {
 		return err
 	}
@@ -239,7 +241,8 @@ func (uv *userValidator) Update(user *User) error {
 		uv.hmacRemember,
 		uv.normalizeEmail,
 		uv.requireEmail,
-		uv.emailFormat)
+		uv.emailFormat,
+		uv.emailIsAvail)
 	if err != nil {
 		return err
 	}
@@ -338,6 +341,20 @@ func (uv *userValidator) emailFormat(user *User) error {
 	}
 	if !uv.emailRegex.MatchString(user.Email) {
 		return ErrEmailInvalid
+	}
+	return nil
+}
+
+func (uv *userValidator) emailIsAvail(user *User) error {
+	existing, err := uv.ByEmail(user.Email)
+	if err == ErrNotFound {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if user.ID != existing.ID {
+		return ErrEmailTaken
 	}
 	return nil
 }
