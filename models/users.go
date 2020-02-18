@@ -22,6 +22,7 @@ var (
 	ErrEmailTaken        = errors.New("models: email address is already taken")
 	ErrPasswordTooShort  = errors.New("models: password must " +
 		"be at least 8 characters long")
+	ErrPasswordRequired = errors.New("models: password is required")
 )
 
 var userPwPepper = "secret-random-string"
@@ -224,8 +225,10 @@ func (uv *userValidator) ByRemember(token string) (*User, error) {
 
 func (uv *userValidator) Create(user *User) error {
 	err := runUserValFns(user,
+		uv.passwordRequired,
 		uv.passwordMinLength,
 		uv.bcryptPassword,
+		uv.passwordHashRequired,
 		uv.setRememberIfUnset,
 		uv.hmacRemember,
 		uv.normalizeEmail,
@@ -242,6 +245,7 @@ func (uv *userValidator) Update(user *User) error {
 	err := runUserValFns(user,
 		uv.passwordMinLength,
 		uv.bcryptPassword,
+		uv.passwordHashRequired,
 		uv.hmacRemember,
 		uv.normalizeEmail,
 		uv.requireEmail,
@@ -369,6 +373,20 @@ func (uv *userValidator) passwordMinLength(user *User) error {
 	}
 	if len(user.Password) < 8 {
 		return ErrPasswordTooShort
+	}
+	return nil
+}
+
+func (uv *userValidator) passwordRequired(user *User) error {
+	if user.Password == "" {
+		return ErrPasswordRequired
+	}
+	return nil
+}
+
+func (uv *userValidator) passwordHashRequired(user *User) error {
+	if user.PasswordHash == "" {
+		return ErrPasswordRequired
 	}
 	return nil
 }
