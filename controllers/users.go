@@ -40,11 +40,19 @@ func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 		Level   string
 		Message string
 	}
+	type Data struct {
+		Alert *Alert
+		Yield interface{}
+	}
 	alert := Alert{
 		Level:   "success",
 		Message: "Successfully rendered a dynamic alert!",
 	}
-	must(u.NewView.Render(w, alert))
+	data := Data{
+		Alert: &alert,
+		Yield: "This can be any data",
+	}
+	must(u.NewView.Render(w, data))
 }
 
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
