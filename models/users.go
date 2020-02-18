@@ -96,16 +96,13 @@ type userGorm struct {
 
 type userValFn func(*User) error
 
-func NewUserService(connectionInfo string) (UserService, error) {
-	ug, err := newUserGorm(connectionInfo)
-	if err != nil {
-		return nil, err
-	}
+func NewUserService(db *gorm.DB) UserService {
+	ug := &userGorm{db}
 	hmac := hash.NewHMAC(hmacSecretKey)
 	uv := newUserValidator(ug, hmac)
 	return &userService{
 		UserDB: uv,
-	}, nil
+	}
 }
 
 func newUserValidator(udb UserDB, hmac hash.HMAC) *userValidator {
@@ -115,17 +112,6 @@ func newUserValidator(udb UserDB, hmac hash.HMAC) *userValidator {
 		emailRegex: regexp.MustCompile(
 			`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,16}$`),
 	}
-}
-
-func newUserGorm(connectionInfo string) (*userGorm, error) {
-	db, err := gorm.Open("postgres", connectionInfo)
-	if err != nil {
-		return nil, err
-	}
-	db.LogMode(true)
-	return &userGorm{
-		db: db,
-	}, nil
 }
 
 func (ug *userGorm) Create(user *User) error {
