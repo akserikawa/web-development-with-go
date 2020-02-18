@@ -28,7 +28,6 @@ func main() {
 		panic(err)
 	}
 	defer services.Close()
-	services.DestructiveReset()
 	services.AutoMigrate()
 
 	staticController := controllers.NewStatic()
@@ -39,13 +38,14 @@ func main() {
 	router.Handle("/", staticController.Home).Methods("GET")
 	router.Handle("/contact", staticController.Contact).Methods("GET")
 	router.Handle("/faq", staticController.FAQ).Methods("GET")
-	router.HandleFunc("/signup", usersController.New).Methods("GET")
+	router.Handle("/signup", usersController.NewView).Methods("GET")
 	router.HandleFunc("/signup", usersController.Create).Methods("POST")
 	router.Handle("/login", usersController.LoginView).Methods("GET")
 	router.HandleFunc("/login", usersController.Login).Methods("POST")
 	router.HandleFunc("/cookietest", usersController.CookieTest).Methods("GET")
 
 	router.Handle("/galleries/new", galleriesController.New).Methods("GET")
+	router.HandleFunc("/galleries", galleriesController.Create).Methods("POST")
 
 	log.Println("Server listening on http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", router))
