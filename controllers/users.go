@@ -67,25 +67,28 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
+	var vd views.Data
 	form := LoginForm{}
 	if err := parseForm(r, &form); err != nil {
-		panic(err)
+		vd.SetAlert(err)
+		u.LoginView.Render(w, vd)
+		return
 	}
 	user, err := u.us.Authenticate(form.Email, form.Password)
 	if err != nil {
 		switch err {
 		case models.ErrNotFound:
-			fmt.Fprintln(w, "Invalid email address.")
-		case models.ErrPasswordIncorrect:
-			fmt.Fprintln(w, "Invalid password provided.")
+			vd.AlertError("No user exists with that email address")
 		default:
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			vd.SetAlert(err)
 		}
+		u.LoginView.Render(w, vd)
 		return
 	}
 	err = u.signIn(w, user)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		vd.SetAlert(err)
+		u.LoginView.Render(w, vd)
 		return
 	}
 
@@ -94,8 +97,7 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
-	url := refererCookie.Value
-	http.Redirect(w, r, url, http.StatusFound)
+	http.Redirect(w, r, refererCookie.Value, http.StatusFound)
 }
 
 // signIn is used to sign the given user in via cookies
