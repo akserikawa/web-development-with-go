@@ -4,12 +4,11 @@ import (
 	"regexp"
 	"strings"
 
-	"lenslocked.com/hash"
-	"lenslocked.com/rand"
-
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"golang.org/x/crypto/bcrypt"
+	"lenslocked.com/hash"
+	"lenslocked.com/rand"
 )
 
 type modelError string

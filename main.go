@@ -5,10 +5,10 @@ import (
 	"log"
 	"net/http"
 
-	"lenslocked.com/models"
-
 	"github.com/gorilla/mux"
 	"lenslocked.com/controllers"
+	"lenslocked.com/middleware"
+	"lenslocked.com/models"
 )
 
 const (
@@ -34,6 +34,10 @@ func main() {
 	usersController := controllers.NewUsers(services.User)
 	galleriesController := controllers.NewGalleries(services.Gallery)
 
+	requireUserMiddleware := middleware.RequireUser{
+		UserService: services.User,
+	}
+
 	router := mux.NewRouter()
 	router.Handle("/", staticController.Home).Methods("GET")
 	router.Handle("/contact", staticController.Contact).Methods("GET")
@@ -44,8 +48,11 @@ func main() {
 	router.HandleFunc("/login", usersController.Login).Methods("POST")
 	router.HandleFunc("/cookietest", usersController.CookieTest).Methods("GET")
 
-	router.Handle("/galleries/new", galleriesController.New).Methods("GET")
-	router.HandleFunc("/galleries", galleriesController.Create).Methods("POST")
+	newGallery := requireUserMiddleware.Apply(galleriesController.New)
+	createGallery := requireUserMiddleware.ApplyFn(galleriesController.Create)
+
+	router.Handle("/galleries/new", newGallery).Methods("GET")
+	router.HandleFunc("/galleries", createGallery).Methods("POST")
 
 	log.Println("Server listening on http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", router))
