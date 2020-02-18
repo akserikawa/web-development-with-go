@@ -36,19 +36,11 @@ func NewUsers(us models.UserService) *Users {
 }
 
 func (u *Users) New(w http.ResponseWriter, r *http.Request) {
-	type Alert struct {
-		Level   string
-		Message string
+	alert := views.Alert{
+		Level:   views.AlertLvlSuccess,
+		Message: "Succesfully rendered a dynamic alert!",
 	}
-	type Data struct {
-		Alert *Alert
-		Yield interface{}
-	}
-	alert := Alert{
-		Level:   "success",
-		Message: "Successfully rendered a dynamic alert!",
-	}
-	data := Data{
+	data := views.Data{
 		Alert: &alert,
 		Yield: "This can be any data",
 	}
