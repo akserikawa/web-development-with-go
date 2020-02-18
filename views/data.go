@@ -1,5 +1,7 @@
 package views
 
+import "log"
+
 // Data is the top level structure that views expect data to come in.
 type Data struct {
 	Alert *Alert
@@ -12,6 +14,11 @@ type Alert struct {
 	Message string
 }
 
+type PublicError interface {
+	error
+	Public() string
+}
+
 const (
 	AlertLvlError   = "danger"
 	AlertLvlWarning = "warning"
@@ -21,3 +28,17 @@ const (
 	AlertMsgGeneric = "Something went wrong. " +
 		"Please try again, and contact us if the problem persists."
 )
+
+func (d *Data) SetAlert(err error) {
+	var msg string
+	if pErr, ok := err.(PublicError); ok {
+		msg = pErr.Public()
+	} else {
+		log.Println(err)
+		msg = AlertMsgGeneric
+	}
+	d.Alert = &Alert{
+		Level:   AlertLvlError,
+		Message: msg,
+	}
+}
