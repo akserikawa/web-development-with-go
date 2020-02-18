@@ -18,19 +18,20 @@ func main() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
-	us, err := models.NewUserService(psqlInfo)
+	services, err := models.NewServices(psqlInfo)
+
 	if err != nil {
 		panic(err)
 	}
-	defer us.Close()
-	us.DestructiveReset()
+	defer services.Close()
+	services.DestructiveReset()
 
 	user := models.User{
 		Name:     "Michael Scott",
 		Email:    "michael@dundermifflin.com",
 		Password: "bestboss",
 	}
-	err = us.Create(&user)
+	err = services.User.Create(&user)
 	if err != nil {
 		panic(err)
 	}
@@ -42,7 +43,7 @@ func main() {
 
 	// Now verify that we can lookup a user with that remember
 	// token
-	user2, err := us.ByRemember(user.Remember)
+	user2, err := services.User.ByRemember(user.Remember)
 	if err != nil {
 		panic(err)
 	}

@@ -29,8 +29,8 @@ type LoginForm struct {
 
 func NewUsers(us models.UserService) *Users {
 	return &Users{
-		NewView:   views.NewView("bootstrap-4", "users/new"),
-		LoginView: views.NewView("bootstrap-4", "users/login"),
+		NewView:   views.NewView("bootstrap", "users/new"),
+		LoginView: views.NewView("bootstrap", "users/login"),
 		us:        us,
 	}
 }

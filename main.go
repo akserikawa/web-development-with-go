@@ -33,6 +33,7 @@ func main() {
 
 	staticController := controllers.NewStatic()
 	usersController := controllers.NewUsers(services.User)
+	galleriesController := controllers.NewGalleries(services.Gallery)
 
 	router := mux.NewRouter()
 	router.Handle("/", staticController.Home).Methods("GET")
@@ -43,6 +44,8 @@ func main() {
 	router.Handle("/login", usersController.LoginView).Methods("GET")
 	router.HandleFunc("/login", usersController.Login).Methods("POST")
 	router.HandleFunc("/cookietest", usersController.CookieTest).Methods("GET")
+
+	router.Handle("/galleries/new", galleriesController.New).Methods("GET")
 
 	log.Println("Server listening on http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", router))
