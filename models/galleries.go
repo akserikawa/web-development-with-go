@@ -5,6 +5,11 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
+const (
+	ErrUserIDRequired modelError = "models: user ID is required"
+	ErrTitleRequired  modelError = "models: title is required"
+)
+
 type Gallery struct {
 	gorm.Model
 	UserID uint   `gorm:"not_null;index"`
@@ -27,6 +32,8 @@ type galleryValidator struct {
 	GalleryDB
 }
 
+type galleryValFn func(*Gallery) error
+
 type galleryGorm struct {
 	db *gorm.DB
 }
@@ -45,4 +52,37 @@ func NewGalleryService(db *gorm.DB) GalleryService {
 			},
 		},
 	}
+}
+
+func (gv *galleryValidator) Create(gallery *Gallery) error {
+	err := runGalleryValFns(gallery,
+		gv.userIDRequired,
+		gv.titleRequired)
+	if err != nil {
+		return err
+	}
+	return gv.GalleryDB.Create(gallery)
+}
+
+func runGalleryValFns(gallery *Gallery, fns ...galleryValFn) error {
+	for _, fn := range fns {
+		if err := fn(gallery); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (gv *galleryValidator) userIDRequired(g *Gallery) error {
+	if g.UserID <= 0 {
+		return ErrUserIDRequired
+	}
+	return nil
+}
+
+func (gv *galleryValidator) titleRequired(g *Gallery) error {
+	if g.Title == "" {
+		return ErrTitleRequired
+	}
+	return nil
 }
