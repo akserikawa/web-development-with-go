@@ -36,7 +36,15 @@ func NewUsers(us models.UserService) *Users {
 }
 
 func (u *Users) New(w http.ResponseWriter, r *http.Request) {
-	must(u.NewView.Render(w, nil))
+	type Alert struct {
+		Level   string
+		Message string
+	}
+	alert := Alert{
+		Level:   "success",
+		Message: "Successfully rendered a dynamic alert!",
+	}
+	must(u.NewView.Render(w, alert))
 }
 
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
