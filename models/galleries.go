@@ -1,6 +1,9 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+)
 
 type Gallery struct {
 	gorm.Model
@@ -16,10 +19,30 @@ type GalleryDB interface {
 	Create(gallery *Gallery) error
 }
 
+type galleryService struct {
+	GalleryDB
+}
+
+type galleryValidator struct {
+	GalleryDB
+}
+
 type galleryGorm struct {
 	db *gorm.DB
 }
 
+var _ GalleryDB = &galleryGorm{}
+
 func (gg *galleryGorm) Create(gallery *Gallery) error {
-	return nil
+	return gg.db.Create(gallery).Error
+}
+
+func NewGalleryService(db *gorm.DB) GalleryService {
+	return &galleryService{
+		GalleryDB: &galleryValidator{
+			GalleryDB: &galleryGorm{
+				db: db,
+			},
+		},
+	}
 }
