@@ -53,6 +53,7 @@ func main() {
 
 	router.Handle("/galleries/new", newGallery).Methods("GET")
 	router.HandleFunc("/galleries", createGallery).Methods("POST")
+	router.HandleFunc("/galleries/{id:[0-9]+}", galleriesController.Show).Methods("GET")
 
 	log.Println("Server listening on http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", router))
