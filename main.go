@@ -49,21 +49,36 @@ func main() {
 	router.HandleFunc("/login", usersController.Login).Methods("POST")
 	router.HandleFunc("/cookietest", usersController.CookieTest).Methods("GET")
 
-	newGallery := requireUserMiddleware.Apply(galleriesController.New)
-	createGallery := requireUserMiddleware.ApplyFn(galleriesController.Create)
-	editGallery := requireUserMiddleware.ApplyFn(galleriesController.Edit)
-	updateGallery := requireUserMiddleware.ApplyFn(galleriesController.Update)
-	deleteGallery := requireUserMiddleware.ApplyFn(galleriesController.Delete)
-	listGalleries := requireUserMiddleware.ApplyFn(galleriesController.Index)
+	router.Handle("/galleries/new",
+		requireUserMiddleware.Apply(galleriesController.New)).
+		Methods("GET")
 
-	router.Handle("/galleries/new", newGallery).Methods("GET")
-	router.HandleFunc("/galleries", createGallery).Methods("POST")
-	router.HandleFunc("/galleries/{id:[0-9]+}", galleriesController.Show).
-		Methods("GET").Name(controllers.ShowGallery)
-	router.HandleFunc("/galleries/{id:[0-9]+}/edit", editGallery).Methods("GET")
-	router.HandleFunc("/galleries/{id:[0-9]+}/update", updateGallery).Methods("POST")
-	router.HandleFunc("/galleries/{id:[0-9]+}/delete", deleteGallery).Methods("POST")
-	router.Handle("/galleries", listGalleries).Methods("GET")
+	router.HandleFunc("/galleries",
+		requireUserMiddleware.ApplyFn(galleriesController.Create)).
+		Methods("POST")
+
+	router.HandleFunc("/galleries/{id:[0-9]+}",
+		galleriesController.Show).
+		Methods("GET").
+		Name(controllers.ShowGallery)
+
+	router.HandleFunc("/galleries/{id:[0-9]+}/update",
+		requireUserMiddleware.ApplyFn(galleriesController.Update)).
+		Methods("POST")
+
+	router.HandleFunc("/galleries/{id:[0-9]+}/delete",
+		requireUserMiddleware.ApplyFn(galleriesController.Delete)).
+		Methods("POST")
+
+	router.HandleFunc("/galleries/{id:[0-9]+}/edit",
+		requireUserMiddleware.ApplyFn(galleriesController.Edit)).
+		Methods("GET").
+		Name(controllers.EditGallery)
+
+	router.Handle("/galleries",
+		requireUserMiddleware.ApplyFn(galleriesController.Index)).
+		Methods("GET").
+		Name(controllers.IndexGalleries)
 
 	log.Println("Server listening on http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", router))
