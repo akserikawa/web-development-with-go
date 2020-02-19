@@ -53,6 +53,7 @@ func main() {
 	createGallery := requireUserMiddleware.ApplyFn(galleriesController.Create)
 	editGallery := requireUserMiddleware.ApplyFn(galleriesController.Edit)
 	updateGallery := requireUserMiddleware.ApplyFn(galleriesController.Update)
+	deleteGallery := requireUserMiddleware.ApplyFn(galleriesController.Delete)
 
 	router.Handle("/galleries/new", newGallery).Methods("GET")
 	router.HandleFunc("/galleries", createGallery).Methods("POST")
@@ -60,6 +61,7 @@ func main() {
 		Methods("GET").Name(controllers.ShowGallery)
 	router.HandleFunc("/galleries/{id:[0-9]+}/edit", editGallery).Methods("GET")
 	router.HandleFunc("/galleries/{id:[0-9]+}/update", updateGallery).Methods("POST")
+	router.HandleFunc("/galleries/{id:[0-9]+}/delete", deleteGallery).Methods("POST")
 
 	log.Println("Server listening on http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", router))
