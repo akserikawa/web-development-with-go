@@ -30,15 +30,16 @@ func main() {
 	defer services.Close()
 	services.AutoMigrate()
 
+	router := mux.NewRouter()
+
 	staticController := controllers.NewStatic()
 	usersController := controllers.NewUsers(services.User)
-	galleriesController := controllers.NewGalleries(services.Gallery)
+	galleriesController := controllers.NewGalleries(services.Gallery, router)
 
 	requireUserMiddleware := middleware.RequireUser{
 		UserService: services.User,
 	}
 
-	router := mux.NewRouter()
 	router.Handle("/", staticController.Home).Methods("GET")
 	router.Handle("/contact", staticController.Contact).Methods("GET")
 	router.Handle("/faq", staticController.FAQ).Methods("GET")
@@ -53,7 +54,8 @@ func main() {
 
 	router.Handle("/galleries/new", newGallery).Methods("GET")
 	router.HandleFunc("/galleries", createGallery).Methods("POST")
-	router.HandleFunc("/galleries/{id:[0-9]+}", galleriesController.Show).Methods("GET")
+	router.HandleFunc("/galleries/{id:[0-9]+}", galleriesController.Show).
+		Methods("GET").Name(controllers.ShowGallery)
 
 	log.Println("Server listening on http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", router))
