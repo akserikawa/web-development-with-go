@@ -30,56 +30,57 @@ func main() {
 	defer services.Close()
 	services.AutoMigrate()
 
-	router := mux.NewRouter()
+	r := mux.NewRouter()
 
 	staticController := controllers.NewStatic()
 	usersController := controllers.NewUsers(services.User)
-	galleriesController := controllers.NewGalleries(services.Gallery, router)
+	galleriesController := controllers.NewGalleries(services.Gallery, r)
 
-	requireUserMiddleware := middleware.RequireUser{
+	userMw := middleware.User{
 		UserService: services.User,
 	}
+	requireUserMw := middleware.RequireUser{}
 
-	router.Handle("/", staticController.Home).Methods("GET")
-	router.Handle("/contact", staticController.Contact).Methods("GET")
-	router.Handle("/faq", staticController.FAQ).Methods("GET")
-	router.Handle("/signup", usersController.NewView).Methods("GET")
-	router.HandleFunc("/signup", usersController.Create).Methods("POST")
-	router.Handle("/login", usersController.LoginView).Methods("GET")
-	router.HandleFunc("/login", usersController.Login).Methods("POST")
-	router.HandleFunc("/cookietest", usersController.CookieTest).Methods("GET")
+	r.Handle("/", staticController.Home).Methods("GET")
+	r.Handle("/contact", staticController.Contact).Methods("GET")
+	r.Handle("/faq", staticController.FAQ).Methods("GET")
+	r.Handle("/signup", usersController.NewView).Methods("GET")
+	r.HandleFunc("/signup", usersController.Create).Methods("POST")
+	r.Handle("/login", usersController.LoginView).Methods("GET")
+	r.HandleFunc("/login", usersController.Login).Methods("POST")
+	r.HandleFunc("/cookietest", usersController.CookieTest).Methods("GET")
 
-	router.Handle("/galleries/new",
-		requireUserMiddleware.Apply(galleriesController.New)).
+	r.Handle("/galleries/new",
+		requireUserMw.Apply(galleriesController.New)).
 		Methods("GET")
 
-	router.HandleFunc("/galleries",
-		requireUserMiddleware.ApplyFn(galleriesController.Create)).
+	r.HandleFunc("/galleries",
+		requireUserMw.ApplyFn(galleriesController.Create)).
 		Methods("POST")
 
-	router.HandleFunc("/galleries/{id:[0-9]+}",
+	r.HandleFunc("/galleries/{id:[0-9]+}",
 		galleriesController.Show).
 		Methods("GET").
 		Name(controllers.ShowGallery)
 
-	router.HandleFunc("/galleries/{id:[0-9]+}/update",
-		requireUserMiddleware.ApplyFn(galleriesController.Update)).
+	r.HandleFunc("/galleries/{id:[0-9]+}/update",
+		requireUserMw.ApplyFn(galleriesController.Update)).
 		Methods("POST")
 
-	router.HandleFunc("/galleries/{id:[0-9]+}/delete",
-		requireUserMiddleware.ApplyFn(galleriesController.Delete)).
+	r.HandleFunc("/galleries/{id:[0-9]+}/delete",
+		requireUserMw.ApplyFn(galleriesController.Delete)).
 		Methods("POST")
 
-	router.HandleFunc("/galleries/{id:[0-9]+}/edit",
-		requireUserMiddleware.ApplyFn(galleriesController.Edit)).
+	r.HandleFunc("/galleries/{id:[0-9]+}/edit",
+		requireUserMw.ApplyFn(galleriesController.Edit)).
 		Methods("GET").
 		Name(controllers.EditGallery)
 
-	router.Handle("/galleries",
-		requireUserMiddleware.ApplyFn(galleriesController.Index)).
+	r.Handle("/galleries",
+		requireUserMw.ApplyFn(galleriesController.Index)).
 		Methods("GET").
 		Name(controllers.IndexGalleries)
 
 	log.Println("Server listening on http://localhost:3000")
-	log.Fatal(http.ListenAndServe(":3000", router))
+	log.Fatal(http.ListenAndServe(":3000", userMw.Apply(r)))
 }
