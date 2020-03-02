@@ -5,10 +5,12 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"lenslocked.com/controllers"
 	"lenslocked.com/middleware"
 	"lenslocked.com/models"
+	"lenslocked.com/rand"
 )
 
 const (
@@ -95,6 +97,13 @@ func main() {
 	assetHandler := http.FileServer(http.Dir("./assets"))
 	r.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", assetHandler))
 
+	isProd := false
+	b, err := rand.Bytes(rand.RememberTokenBytes)
+	if err != nil {
+		panic(err)
+	}
+	csrfMw := csrf.Protect(b, csrf.Secure(isProd))
+
 	log.Println("Server listening on http://localhost:3000")
-	log.Fatal(http.ListenAndServe(":3000", userMw.Apply(r)))
+	log.Fatal(http.ListenAndServe(":3000", csrfMw(userMw.Apply(r))))
 }
