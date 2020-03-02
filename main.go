@@ -92,6 +92,9 @@ func main() {
 		requireUserMw.ApplyFn(galleriesController.ImageDelete)).
 		Methods("POST")
 
+	assetHandler := http.FileServer(http.Dir("./assets"))
+	r.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", assetHandler))
+
 	log.Println("Server listening on http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", userMw.Apply(r)))
 }
