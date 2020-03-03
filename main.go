@@ -22,10 +22,9 @@ const (
 )
 
 func main() {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-
-	services, err := models.NewServices(psqlInfo)
+	config := DefaultConfig()
+	dbConfig := DefaultPostgresConfig()
+	services, err := models.NewServices(dbConfig.Dialect(), dbConfig.ConnectionInfo())
 	if err != nil {
 		panic(err)
 	}
@@ -97,13 +96,13 @@ func main() {
 	assetHandler := http.FileServer(http.Dir("./assets"))
 	r.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", assetHandler))
 
-	isProd := false
 	b, err := rand.Bytes(rand.RememberTokenBytes)
 	if err != nil {
 		panic(err)
 	}
-	csrfMw := csrf.Protect(b, csrf.Secure(isProd))
+	csrfMw := csrf.Protect(b, csrf.Secure(config.IsProd()))
 
-	log.Println("Server listening on http://localhost:3000")
-	log.Fatal(http.ListenAndServe(":3000", csrfMw(userMw.Apply(r))))
+	log.Printf("Starting the server on http://localhost:%d ...\n", config.Port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port),
+		csrfMw(userMw.Apply(r))))
 }
