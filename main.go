@@ -13,18 +13,16 @@ import (
 	"lenslocked.com/rand"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "lenslocked.com"
-)
-
 func main() {
 	config := DefaultConfig()
 	dbConfig := DefaultPostgresConfig()
-	services, err := models.NewServices(dbConfig.Dialect(), dbConfig.ConnectionInfo())
+	services, err := models.NewServices(
+		models.WithGorm(dbConfig.Dialect(), dbConfig.ConnectionInfo()),
+		models.WithLogMode(!config.IsProd()),
+		models.WithUser(config.Pepper, config.HMACKey),
+		models.WithGallery(),
+		models.WithImage(),
+	)
 	if err != nil {
 		panic(err)
 	}
