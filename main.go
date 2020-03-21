@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,7 +15,11 @@ import (
 )
 
 func main() {
-	config := DefaultConfig()
+	boolPtr := flag.Bool("prod", false, "Provide this flag "+
+		"in production. This ensures that a .config file is "+
+		"provided before the application starts.")
+	flag.Parse()
+	config := LoadConfig(*boolPtr)
 	dbConfig := DefaultPostgresConfig()
 	services, err := models.NewServices(
 		models.WithGorm(dbConfig.Dialect(), dbConfig.ConnectionInfo()),
